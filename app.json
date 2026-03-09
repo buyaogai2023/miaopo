@@ -1,0 +1,69 @@
+{
+  "expo": {
+    "name": "妙谱",
+    "slug": "miaopo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "miaopo",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAFAF8"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.miaopo.app",
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "妙谱需要语音识别权限来听懂您说的话",
+        "NSMicrophoneUsageDescription": "妙谱需要使用麦克风与妙妙大厨语音对话",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FAFAF8"
+      },
+      "package": "com.miaopo.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "妙谱需要访问您的照片来识别食材",
+          "cameraPermission": "妙谱需要使用相机来拍摄冰箱食材"
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "妙谱需要使用麦克风与妙妙大厨语音对话"
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "妙谱需要使用麦克风与妙妙大厨语音对话",
+          "speechRecognitionPermission": "妙谱需要语音识别权限来听懂您说的话"
+        }
+      ],
+      "expo-asset"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "995dc309-c6de-450b-a0cb-ffb27c3908e5"
+      }
+    }
+  }
+}
