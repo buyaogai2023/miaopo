@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Activi
 import * as Clipboard from 'expo-clipboard'
 import { router, useLocalSearchParams } from 'expo-router'
 import { extractRecipeFromText, generateRecipeByName } from '../../services/deepseek'
-import { extractDouyinText, downloadSubtitle } from '../../services/douyinApi'
+import { extractDouyinText } from '../../services/douyinApi'
 import { useRecipeStore } from '../../store/recipeStore'
 import { Colors } from '../../constants/colors'
 import { Recipe } from '../../types'
@@ -53,13 +53,8 @@ export default function ImportRecipe() {
           setLoadingMsg('正在读取抖音视频...')
           try {
             const result = await extractDouyinText(input)
-            if (result.source === 'subtitle') {
-              setLoadingMsg('下载字幕中...')
-              content = await downloadSubtitle(result.text)
-            } else {
-              content = result.text
-            }
-            setLoadingMsg(`提取到文字，AI 分析中...`)
+            setLoadingMsg(result.source === 'asr' ? 'AI 听完了视频，提取菜谱中...' : '提取到视频描述，AI 分析中...')
+            content = result.text
           } catch (e: any) {
             setLoading(false)
             Alert.alert('抖音解析失败', e.message || '无法读取该视频内容，请手动输入菜名', [{ text: '知道了' }])
