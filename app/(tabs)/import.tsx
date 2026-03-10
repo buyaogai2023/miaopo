@@ -74,7 +74,11 @@ export default function ImportRecipe() {
           setLoadingMsg('正在读取抖音视频...')
           try {
             const result = await extractDouyinText(input)
-            setLoadingMsg(result.source === 'asr' ? 'AI 听完了视频，提取菜谱中...' : '提取到视频描述，AI 分析中...')
+            setLoadingMsg(
+              result.source === 'asr'
+                ? 'AI 听完了视频，提取菜谱中...'
+                : '视频描述已含菜谱，AI 分析中...'
+            )
             content = result.text
           } catch (e: any) {
             setLoading(false)

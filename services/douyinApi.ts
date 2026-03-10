@@ -9,10 +9,15 @@ export interface DouyinResult {
 }
 
 export async function extractDouyinText(url: string): Promise<DouyinResult> {
-  // Step 1: TikHub 拿视频直链 + 描述
+  // Step 1: TikHub 拿视频直链 + 描述（免费）
   const { videoUrl, desc } = await fetchVideoUrl(url)
 
-  // Step 2: Paraformer 语音识别
+  // Step 2: 先判断描述是否已有菜谱内容（免费）
+  if (desc && isRecipeDesc(desc)) {
+    return { text: desc, source: 'desc' }
+  }
+
+  // Step 3: 描述不够 → Paraformer 语音识别（收费）
   if (videoUrl) {
     try {
       const text = await transcribeVideo(videoUrl)
@@ -20,10 +25,24 @@ export async function extractDouyinText(url: string): Promise<DouyinResult> {
     } catch {}
   }
 
-  // Step 3: 降级到视频描述
+  // Step 4: ASR 也失败 → 用描述凑合
   if (desc && desc.length > 5) return { text: desc, source: 'desc' }
 
   throw new Error('无法提取视频内容，请手动输入菜名')
+}
+
+// 判断描述是否包含足够的菜谱信息
+function isRecipeDesc(desc: string): boolean {
+  // 有食材关键词
+  const ingredientHints = ['克', '毫升', '勺', '个', '片', '段', '根', '适量', '少许', '食材']
+  // 有步骤关键词
+  const stepHints = ['步骤', '做法', '第一步', '1.', '①', '翻炒', '焯水', '腌制', '切', '加入', '煮', '炒', '蒸', '烤']
+
+  const hasIngredient = ingredientHints.some(k => desc.includes(k))
+  const hasStep = stepHints.some(k => desc.includes(k))
+  const isLongEnough = desc.length > 80  // 描述够长才可能有完整菜谱
+
+  return isLongEnough && (hasIngredient || hasStep)
 }
 
 async function fetchVideoUrl(url: string): Promise<{ videoUrl: string; desc: string }> {
