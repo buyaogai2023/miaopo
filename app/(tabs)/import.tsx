@@ -10,6 +10,12 @@ import { Recipe } from '../../types'
 
 const isUrl = (text: string) => /^https?:\/\//i.test(text.trim())
 
+// 从文字里提取抖音链接（支持分享文字中嵌入的链接）
+const extractDouyinUrl = (text: string): string | null => {
+  const match = text.match(/https?:\/\/[^\s]*(?:douyin\.com|v\.douyin\.com)[^\s]*/i)
+  return match ? match[0] : null
+}
+
 // 无法抓取内容的平台（SPA/需要登录/跳转APP）
 const BLOCKED_DOMAINS = ['douyin.com', 'v.douyin.com', 'tiktok.com', 'vm.tiktok.com', 'xiaohongshu.com', 'xhslink.com', 'bilibili.com', 'weibo.com']
 const isBlockedPlatform = (url: string) => BLOCKED_DOMAINS.some(d => url.includes(d))
@@ -37,8 +43,23 @@ export default function ImportRecipe() {
     try {
       let content = input
 
-      // 检测到 URL
-      if (isUrl(input)) {
+      // 检测文字里嵌入的抖音链接（如抖音分享文字）
+      const embeddedDouyinUrl = !isUrl(input) ? extractDouyinUrl(input) : null
+      if (embeddedDouyinUrl) {
+        setLoadingMsg('检测到抖音链接，正在读取视频...')
+        try {
+          const result = await extractDouyinText(embeddedDouyinUrl)
+          setLoadingMsg(result.source === 'asr' ? 'AI 听完了视频，提取菜谱中...' : '提取到视频描述，AI 分析中...')
+          content = result.text
+        } catch (e: any) {
+          setLoading(false)
+          Alert.alert('抖音解析失败', e.message || '无法读取该视频内容，请手动输入菜名', [{ text: '知道了' }])
+          return
+        }
+      }
+
+      // 检测到纯 URL
+      else if (isUrl(input)) {
         // 抖音链接 → 调用后端提取字幕
         if (isBlockedPlatform(input)) {
           if (!input.includes('douyin.com')) {
