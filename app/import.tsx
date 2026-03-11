@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native'
 import * as Clipboard from 'expo-clipboard'
 import { router, useLocalSearchParams } from 'expo-router'
-import { extractRecipeFromText, generateRecipeByName } from '../../services/deepseek'
-import { extractDouyinText } from '../../services/douyinApi'
-import { useRecipeStore } from '../../store/recipeStore'
-import { Colors } from '../../constants/colors'
-import { Recipe } from '../../types'
+import { extractRecipeFromText, generateRecipeByName } from '../services/deepseek'
+import { extractDouyinText } from '../services/douyinApi'
+import { useRecipeStore } from '../store/recipeStore'
+import { Colors } from '../constants/colors'
+import { Recipe } from '../types'
 
 const isUrl = (text: string) => /^https?:\/\//i.test(text.trim())
 

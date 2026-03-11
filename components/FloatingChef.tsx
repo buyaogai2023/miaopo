@@ -49,7 +49,7 @@ async function saveAppData(d: any) {
 }
 
 export default function FloatingChef() {
-  const { messages, visible, appData, addMessage, appendToLast, setVisible, setAppData, saved, saveMessage, unsaveMessage, loadSaved } = useChatStore()
+  const { messages, visible, appData, addMessage, appendToLast, setVisible, setAppData, saved, saveMessage, unsaveMessage, loadSaved, saveMessages, loadMessages, clearMessages } = useChatStore()
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [listening, setListening] = useState(false)
@@ -109,7 +109,16 @@ export default function FloatingChef() {
     }
   }, [visible])
 
-  useEffect(() => { loadSaved() }, [])
+  useEffect(() => {
+    loadSaved()
+    // 加载历史聊天记录，有记录则自动弹出
+    loadMessages().then(hasHistory => {
+      if (hasHistory) {
+        setInited(true)  // 有历史记录，跳过打招呼
+        loadAppData().then(setAppData)
+      }
+    })
+  }, [])
 
   const init = async () => {
     const data = await loadAppData()
@@ -120,6 +129,7 @@ export default function FloatingChef() {
       const { message, actions } = await chatWithChefStream([], data, undefined, appendToLast)
       if (actions.length) await runActions(actions, data)
       speak(message, () => { if (autoModeRef.current) startListening() })
+      await saveMessages()
     } catch {
       // reset empty msg
       useChatStore.setState(s => ({
@@ -178,6 +188,7 @@ export default function FloatingChef() {
       )
       if (actions.length) await runActions(actions, freshData)
       speak(message, () => { if (autoModeRef.current) startListening() })
+      await saveMessages()
     } catch {
       addMessage({ role: 'assistant', content: '出错了，请再说一遍' })
     } finally {
@@ -225,6 +236,15 @@ export default function FloatingChef() {
             </View>
             <TouchableOpacity onPress={() => setShowSaved(true)} style={styles.voiceBtn}>
               <Text style={styles.voiceBtnText}>🔖</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => Alert.alert('清空对话', '确定清空所有聊天记录？', [
+                { text: '取消', style: 'cancel' },
+                { text: '清空', style: 'destructive', onPress: () => { clearMessages(); setInited(false) } }
+              ])}
+              style={styles.voiceBtn}
+            >
+              <Text style={styles.voiceBtnText}>🗑</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { setVoiceOn(v => !v); Speech.stop() }} style={styles.voiceBtn}>
               <Text style={styles.voiceBtnText}>{voiceOn ? '🔊' : '🔇'}</Text>

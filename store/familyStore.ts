@@ -4,6 +4,17 @@ import { supabase } from '../services/supabase'
 
 const STORAGE_KEY = 'miaopo_family'
 
+export interface OnboardingData {
+  familySize: string       // Q1 家庭人数
+  tastes: string[]         // Q2 口味偏好
+  dietary: string[]        // Q3 忌口健康需求
+  cookRole: string         // Q4 谁来做饭
+  cookTime: string         // Q5 做饭时间
+  budget: string           // Q6 每月预算
+  aiProfile: string        // AI生成的家庭饮食画像
+  completed: boolean
+}
+
 export interface HealthProfile {
   age?: number
   gender?: '男' | '女'
@@ -28,6 +39,7 @@ interface FamilyStore {
   members: FamilyMember[]
   familyCode: string   // 6位家庭共享码
   syncing: boolean
+  onboarding: OnboardingData | null
   load: () => Promise<void>
   save: (members: FamilyMember[]) => Promise<void>
   addMember: (name: string, avatar: string, tastes: string[], health?: HealthProfile) => Promise<void>
@@ -35,6 +47,7 @@ interface FamilyStore {
   deleteMember: (id: string) => Promise<void>
   setFamilyCode: (code: string) => Promise<void>
   myTastes: () => string[]
+  saveOnboarding: (data: OnboardingData) => Promise<void>
 }
 
 const AVATARS = ['🧑‍🍳','👨','👩','👦','👧','👴','👵']
@@ -45,12 +58,13 @@ export const useFamilyStore = create<FamilyStore>((set, get) => ({
   members: [],
   familyCode: '',
   syncing: false,
+  onboarding: null,
 
   load: async () => {
     const raw = await AsyncStorage.getItem(STORAGE_KEY)
     if (raw) {
-      const { members, familyCode } = JSON.parse(raw)
-      set({ members: members || [], familyCode: familyCode || '' })
+      const { members, familyCode, onboarding } = JSON.parse(raw)
+      set({ members: members || [], familyCode: familyCode || '', onboarding: onboarding || null })
     } else {
       // 首次：创建"我"
       const me: FamilyMember = { id: Date.now().toString(), name: '我', avatar: '🧑‍🍳', tastes: [], is_me: true }
@@ -62,9 +76,15 @@ export const useFamilyStore = create<FamilyStore>((set, get) => ({
   },
 
   save: async (members) => {
-    const { familyCode } = get()
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ members, familyCode }))
+    const { familyCode, onboarding } = get()
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ members, familyCode, onboarding }))
     set({ members })
+  },
+
+  saveOnboarding: async (data) => {
+    const { members, familyCode } = get()
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ members, familyCode, onboarding: data }))
+    set({ onboarding: data })
   },
 
   addMember: async (name, avatar, tastes, health) => {

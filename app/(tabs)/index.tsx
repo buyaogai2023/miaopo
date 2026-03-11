@@ -292,7 +292,9 @@ export default function RecipeLibrary() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  chefBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, margin: 16, marginBottom: 8, backgroundColor: '#1A1A2E', borderRadius: 16, padding: 16 },
+  addRecipeBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 16, marginBottom: 10, backgroundColor: Colors.primary, borderRadius: 14, paddingVertical: 14 },
+  addRecipeBtnText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  chefBanner: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginBottom: 8, backgroundColor: '#1A1A2E', borderRadius: 16, padding: 16 },
   chefIcon: { fontSize: 32 },
   chefInfo: { flex: 1 },
   chefTitle: { fontSize: 16, fontWeight: '700', color: '#fff' },

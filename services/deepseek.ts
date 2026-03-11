@@ -18,7 +18,7 @@ async function callAI(messages: { role: string; content: any }[]) {
   return JSON.parse(match[0])
 }
 
-async function callAIText(messages: { role: string; content: any }[]): Promise<string> {
+export async function callAIText(messages: { role: string; content: any }[]): Promise<string> {
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {

@@ -20,9 +20,13 @@ interface ChatStore {
   saveMessage: (content: string) => Promise<void>
   unsaveMessage: (id: string) => Promise<void>
   loadSaved: () => Promise<void>
+  saveMessages: () => Promise<void>
+  loadMessages: () => Promise<boolean>
+  clearMessages: () => Promise<void>
 }
 
 const SAVED_KEY = 'miaopo_saved_messages'
+const MESSAGES_KEY = 'miaopo_chat_history'
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
@@ -58,5 +62,23 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   loadSaved: async () => {
     const raw = await AsyncStorage.getItem(SAVED_KEY)
     if (raw) set({ saved: JSON.parse(raw) })
+  },
+  saveMessages: async () => {
+    await AsyncStorage.setItem(MESSAGES_KEY, JSON.stringify(get().messages))
+  },
+  loadMessages: async () => {
+    const raw = await AsyncStorage.getItem(MESSAGES_KEY)
+    if (raw) {
+      const msgs: Message[] = JSON.parse(raw)
+      if (msgs.length > 0) {
+        set({ messages: msgs, visible: true })
+        return true
+      }
+    }
+    return false
+  },
+  clearMessages: async () => {
+    set({ messages: [] })
+    await AsyncStorage.removeItem(MESSAGES_KEY)
   },
 }))

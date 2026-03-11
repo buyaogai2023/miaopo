@@ -58,4 +58,4 @@ Tunnel URL: exp://glkx3l8-anonymous-8082.exp.direct
 - API Key: sk-9e9c16fa845349f98214e473b5148f96
 - Supabase: https://hrxljtjrteunldtwtwrz.supabase.co
 
-<!-- AUTO: 最后活跃 2026-03-09 19:07 -->
+<!-- AUTO: 最后活跃 2026-03-10 22:07 -->
